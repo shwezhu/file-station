@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -19,6 +21,7 @@ func handleUploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	// parse file from request body
 	var maxUploadSize int64 = 1 << 25 // 32MB
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
@@ -26,27 +29,41 @@ func handleUploadFile(w http.ResponseWriter, r *http.Request) {
 		log.Print(err)
 		return
 	}
-
+	// obtain file from form
 	file, fileHeader, err := r.FormFile("uploaded_file")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
-	// Create the uploads folder if it doesn't already exist
+
+	// Create a root folder if it doesn't exist
 	err = os.MkdirAll(root, os.ModePerm)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// Create a new file in the uploads directory
-	dst, err := os.Create(fmt.Sprintf("%v/%d%s", root, time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
+
+	// Create a file to store the file parsed from the request.
+	var dst *os.File
+	// Check if the filename exists first.
+	_, err = os.Stat(fmt.Sprintf("%v/%s", root, fileHeader.Filename))
+	// File already exists, create a file with another name.
+	if err == nil {
+		filename := strings.Split(fileHeader.Filename, ".")[0] +
+			strconv.FormatInt(time.Now().UnixNano(), 10) +
+			filepath.Ext(fileHeader.Filename)
+		dst, err = os.Create(fmt.Sprintf("%v/%s", root, filename))
+	} else if os.IsNotExist(err) {
+		// File doesn't exist, create directly
+		dst, err = os.Create(fmt.Sprintf("%v/%s", root, fileHeader.Filename))
+	}
 	if err != nil {
 		http.Error(w, fmt.Errorf("failed to create dst file: %v", err).Error(), http.StatusInternalServerError)
 		return
 	}
-	// make sure file will always be closed
 	defer dst.Close()
+
 	// Copy the uploaded file to the filesystem
 	// at the specified destination
 	_, err = io.Copy(dst, file)
@@ -54,6 +71,7 @@ func handleUploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Errorf("failed to copy file into dst file: %v", err).Error(), http.StatusInternalServerError)
 		return
 	}
+	// We need get error when close a writable file, because of buffering
 	if err = dst.Close(); err != nil {
 		http.Error(w, fmt.Errorf("failed to close dst file: %v", err).Error(), http.StatusInternalServerError)
 		return
@@ -62,7 +80,7 @@ func handleUploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDownloadFile(w http.ResponseWriter, r *http.Request) {
-
+	//w.Header().Set()
 }
 
 func handleHomePage(w http.ResponseWriter, r *http.Request) {

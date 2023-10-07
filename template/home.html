@@ -9,7 +9,7 @@
 <input id="upload-file" type="file" />
 <input id="upload-file-btn" type="submit" value="upload" />
 
-<ul>
+<ul id="file-list">
     {{range .}}
         <li>{{.Path}}</li>
         <li>{{.Size}}</li>
@@ -23,7 +23,7 @@
         const url = "http://localhost:8080/upload"
         const fileInput = document.getElementById("upload-file")
         const formData = new FormData()
-        formData.append("uploaded_file", fileInput.files[0])
+        formData.append("uploaded_file", fileInput.files[0], String(fileInput.value.split("\\").pop()))
         let response = await fetch(url, {
             method: "POST",
             body: formData,
@@ -33,6 +33,7 @@
             alert("Failed to upload file: " + body)
             return
         }
+        console.log(fileInput.value.split("\\").pop())
         fileInput.value = null
         alert("Upload successfully!")
     }
