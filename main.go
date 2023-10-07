@@ -79,8 +79,29 @@ func handleUploadFile(w http.ResponseWriter, r *http.Request) {
 	_, _ = fmt.Fprintf(w, "upload successful")
 }
 
-func handleDownloadFile(w http.ResponseWriter, r *http.Request) {
-	//w.Header().Set()
+func handleDownload(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, fmt.Sprintf("failed to download file: %v", err), http.StatusBadRequest)
+		return
+	}
+	filename := r.Form.Get("filename")
+	if filename == "" {
+		http.Error(w, "failed to download, no filename provided", http.StatusBadRequest)
+		return
+	}
+	path := fmt.Sprintf("%v/%s", root, filename)
+	// Check if specified exists.
+	_, err := os.Stat(path)
+	// File exists, send the file.
+	if err == nil {
+		w.Header().Set("Content-Disposition", "attachment; filename="+strconv.Quote(filename))
+		w.Header().Set("Content-Type", "application/octet-stream")
+		http.ServeFile(w, r, path)
+	} else if os.IsNotExist(err) {
+		http.Error(w, "no such file", http.StatusNotFound)
+	} else {
+		http.Error(w, fmt.Sprintf("failed to download file %v", err), http.StatusInternalServerError)
+	}
 }
 
 func handleHomePage(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +113,6 @@ func handleHomePage(w http.ResponseWriter, r *http.Request) {
 	}
 	type File struct {
 		Name string
-		Path string
 		Size string
 	}
 	// get files in the specified root folder
@@ -121,7 +141,6 @@ func handleHomePage(w http.ResponseWriter, r *http.Request) {
 		}
 		data = append(data, File{
 			Name: f.Name(),
-			Path: fmt.Sprintf("%v/%v", root, f.Name()),
 			Size: size,
 		})
 	}
@@ -137,6 +156,6 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/home", handleHomePage)
 	mux.HandleFunc("/upload", handleUploadFile)
-	mux.HandleFunc("/hi", handleDownloadFile)
+	mux.HandleFunc("/download", handleDownload)
 	_ = http.ListenAndServe(":8080", mux)
 }

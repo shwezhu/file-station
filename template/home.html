@@ -9,13 +9,11 @@
 <input id="upload-file" type="file" />
 <input id="upload-file-btn" type="submit" value="upload" />
 
-<ul id="file-list">
-    {{range .}}
-        <li>{{.Path}}</li>
-        <li>{{.Size}}</li>
-        <li>{{.Name}}</li>
-    {{end}}
-</ul>
+{{range .}}
+    <div>
+        <a href="http://localhost:8080/download?filename={{.Name}}">{{.Name}} ({{.Size}})</a>
+    </div>
+{{end}}
 
 <script>
     document.getElementById("upload-file-btn").addEventListener("click", uploadFile)
