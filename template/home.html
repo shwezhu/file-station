@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>File Station</title>
+</head>
+<body>
+
+<input id="upload-file" type="file" />
+<input id="upload-file-btn" type="submit" value="upload" />
+
+<ul>
+    {{range .}}
+        <li>{{.Path}}</li>
+        <li>{{.Size}}</li>
+        <li>{{.Name}}</li>
+    {{end}}
+</ul>
+
+<script>
+    document.getElementById("upload-file-btn").addEventListener("click", uploadFile)
+    async function uploadFile() {
+        const url = "http://localhost:8080/upload"
+        const fileInput = document.getElementById("upload-file")
+        const formData = new FormData()
+        formData.append("uploaded_file", fileInput.files[0])
+        let response = await fetch(url, {
+            method: "POST",
+            body: formData,
+        })
+        if (!response.ok) {
+            const body = await response.text()
+            alert("Failed to upload file: " + body)
+            return
+        }
+        fileInput.value = null
+        alert("Upload successfully!")
+    }
+</script>
+
+</body>
+</html>
