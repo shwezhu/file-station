@@ -18,6 +18,5 @@ func main() {
 		log.Fatal("failed to create Redis store")
 	}
 	srv := newServer(db, store, "./files")
-
 	_ = http.ListenAndServe(":8080", srv)
 }
