@@ -7,8 +7,10 @@
 <body>
 
 <input id="upload-file" type="file" />
-<input id="upload-file-btn" type="submit" value="upload" />
+<input id="upload-file-btn" type="button" value="upload" />
+<input id="logout-btn" type="button" value="logout" />
 
+</a>
 {{range .}}
     <div>
         <a href="http://localhost:8080/download?filename={{.Name}}">{{.Name}} ({{.Size}})</a>
@@ -17,6 +19,20 @@
 
 <script>
     document.getElementById("upload-file-btn").addEventListener("click", uploadFile)
+    document.getElementById("logout-btn").addEventListener("click", logout)
+    async function logout() {
+        const url = "http://localhost:8080/logout"
+        let response = await fetch(url, {
+            method: "GET",
+        })
+        if (!response.ok) {
+            const body = await response.text()
+            alert("Failed to logout: " + body)
+            return
+        }
+        alert("Logout successfully.")
+        window.location = "http://localhost:8080/login"
+    }
     async function uploadFile() {
         const url = "http://localhost:8080/upload"
         const fileInput = document.getElementById("upload-file")

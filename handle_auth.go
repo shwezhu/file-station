@@ -11,7 +11,7 @@ func (s *Server) loginRouter(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		http.ServeFile(w, r, fmt.Sprintf("%v/login.html", s.templateRoot))
 	} else {
-		s.postUsernamePasswordOnly(s.handleLoginPost)
+		s.postUsernamePasswordOnly(s.handleLoginPost)(w, r)
 	}
 }
 
@@ -19,7 +19,7 @@ func (s *Server) registerRouter(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		http.ServeFile(w, r, fmt.Sprintf("%v/register.html", s.templateRoot))
 	} else {
-		s.postUsernamePasswordOnly(s.handleRegister)
+		s.postUsernamePasswordOnly(s.handleRegister)(w, r)
 	}
 }
 
@@ -53,7 +53,6 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 
 	// User hasn't logged in, config session.
 	session.SetMaxAge(30 * 60)
-	session.SetValue("authenticated", true)
 	session.SetValue("username", username)
 	// Save session.
 	session.Save(w)
@@ -94,13 +93,13 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request,
 		log.Println(err)
 	}
 	// Redirect to login page.
-	http.Redirect(w, r, "http://localhost:8080", http.StatusPermanentRedirect)
+	http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
 }
 
 func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request,
 	session *sessions.Session) {
 	session.SetMaxAge(-1)
-	session.SetValue("authenticated", false)
+	session.SetIsNew(true)
 	session.Save(w)
 	// Redirect to login page.
 	http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
