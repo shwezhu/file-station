@@ -34,7 +34,7 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	// Create a root folder if it doesn't exist
-	err = os.MkdirAll(s.root, os.ModePerm)
+	err = os.MkdirAll(s.fileRoot, os.ModePerm)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -43,16 +43,16 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	// Create a file to store the file parsed from the request.
 	var dst *os.File
 	// Check if the filename exists first.
-	_, err = os.Stat(fmt.Sprintf("%v/%s", s.root, fileHeader.Filename))
+	_, err = os.Stat(fmt.Sprintf("%v/%s", s.fileRoot, fileHeader.Filename))
 	// File already exists, create a file with another name.
 	if err == nil {
 		filename := strings.Split(fileHeader.Filename, ".")[0] +
 			strconv.FormatInt(time.Now().UnixNano(), 10) +
 			filepath.Ext(fileHeader.Filename)
-		dst, err = os.Create(fmt.Sprintf("%v/%s", s.root, filename))
+		dst, err = os.Create(fmt.Sprintf("%v/%s", s.fileRoot, filename))
 	} else if os.IsNotExist(err) {
 		// File doesn't exist, create directly
-		dst, err = os.Create(fmt.Sprintf("%v/%s", s.root, fileHeader.Filename))
+		dst, err = os.Create(fmt.Sprintf("%v/%s", s.fileRoot, fileHeader.Filename))
 	}
 	if err != nil {
 		http.Error(w, fmt.Errorf("failed to create dst file: %v", err).Error(), http.StatusInternalServerError)
@@ -85,7 +85,7 @@ func (s *Server) handleDownload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to download, no filename provided", http.StatusBadRequest)
 		return
 	}
-	path := fmt.Sprintf("%v/%s", s.root, filename)
+	path := fmt.Sprintf("%v/%s", s.fileRoot, filename)
 	// Check if specified exists.
 	_, err := os.Stat(path)
 	// File exists, send the file.
