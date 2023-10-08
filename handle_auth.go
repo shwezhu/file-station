@@ -1,19 +1,64 @@
 package main
 
 import (
+	"fmt"
 	"github.com/shwezhu/sessions"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 )
 
-func (s *Server) handleAuthLogout(w http.ResponseWriter, r *http.Request,
-	session *sessions.Session) {
-	session.SetMaxAge(-1)
-	session.SetValue("authenticated", false)
+func (s *Server) loginRouter(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		http.ServeFile(w, r, fmt.Sprintf("%v/login.html", s.templateRoot))
+	} else {
+		s.postUsernamePasswordOnly(s.handleLoginPost)
+	}
+}
+
+func (s *Server) registerRouter(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		http.ServeFile(w, r, fmt.Sprintf("%v/register.html", s.templateRoot))
+	} else {
+		s.postUsernamePasswordOnly(s.handleRegister)
+	}
+}
+
+// If user has logged in, redirect to home page.
+func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
+	username, password string) {
+	// Query user by username in database.
+	user, err := s.findUser(username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	// No such user.
+	if *user == (User{}) {
+		http.Error(w, "You have not registered yet.", http.StatusUnauthorized)
+		return
+	}
+	// Compare provided password with password stored in database.
+	if !comparePasswordHash(user.Password, password) {
+		http.Error(w, "Password is incorrect.", http.StatusUnauthorized)
+		return
+	}
+
+	session, err := s.store.Get(r, "session_id")
+	// User has logged in, redirect to home page.
+	if !session.IsNew() {
+		http.Redirect(w, r, "http://localhost:8080", http.StatusPermanentRedirect)
+		return
+	}
+
+	// User hasn't logged in, config session.
+	session.SetMaxAge(30 * 60)
+	session.SetValue("authenticated", true)
+	session.SetValue("username", username)
+	// Save session.
 	session.Save(w)
-	// Redirect to login page.
-	http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
+	// Login successfully, redirect to home page.
+	http.Redirect(w, r, "http://localhost:8080", http.StatusPermanentRedirect)
 }
 
 // Redirect to login page
@@ -52,21 +97,11 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request,
 	http.Redirect(w, r, "http://localhost:8080", http.StatusPermanentRedirect)
 }
 
-// validUserTable checks if user table exists, if not, create one.
-func (s *Server) validUserTable() error {
-	if !s.db.Migrator().HasTable(&User{}) {
-		// Migrate the schema - create table.
-		return s.db.AutoMigrate(&User{})
-	}
-	return nil
-}
-
-func comparePasswordHash(hashedPassword, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	return err == nil
-}
-
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-	return string(bytes), err
+func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request,
+	session *sessions.Session) {
+	session.SetMaxAge(-1)
+	session.SetValue("authenticated", false)
+	session.Save(w)
+	// Redirect to login page.
+	http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
 }
