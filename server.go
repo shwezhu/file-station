@@ -12,11 +12,13 @@ import (
 )
 
 func newServer(db *gorm.DB, store *sessions.MemoryStore) *Server {
-	return &Server{
+	s := &Server{
 		db:     db,
 		store:  store,
 		router: http.NewServeMux(),
 	}
+	s.routes()
+	return s
 }
 
 type Server struct {

@@ -17,13 +17,8 @@ func (s *Server) authenticatedOnly(f func(http.ResponseWriter, *http.Request, *s
 			log.Printf("Failed to valid request: %v", err)
 			return
 		}
-		isAuth := session.GetValueByKey("authenticated")
-		if isAuth == nil {
-			http.Error(w, "Not authenticated, session no authenticated field.", http.StatusInternalServerError)
-			return
-		}
 		// Have not logged in, redirect to login page.
-		if session.IsNew() || isAuth.(bool) == false {
+		if session.IsNew() {
 			http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
 			return
 		}
