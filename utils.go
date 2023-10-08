@@ -26,16 +26,13 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-// findUser returns an empty User{} if user not found.
+// findUser returns a User or an empty User{} if user not found, otherwise returns an error.
 func (s *Server) findUser(username string) (*User, error) {
 	user := User{}
 	// s.db.Limit(1).Find(): returns an empty User{} if user not found.
 	err := s.db.Limit(1).Find(&user, "username = ?", username).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user: %v", err)
-	}
-	if user == (User{}) {
-		return nil, errors.New("failed to find user: user doesn't exist")
 	}
 	return &user, nil
 }
