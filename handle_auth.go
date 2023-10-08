@@ -1,68 +1,23 @@
 package main
 
 import (
-	"fmt"
 	"github.com/shwezhu/sessions"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 )
 
-// If user has logged in, redirect to home page.
-func (s *Server) handleAuthLogin(w http.ResponseWriter, r *http.Request,
-	username, password string) {
-	// Query user by username in database.
-	user, err := s.findUser(username)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	// No such user.
-	if *user == (User{}) {
-		http.Error(w, "You have not registered yet.", http.StatusUnauthorized)
-		return
-	}
-	// Compare provided password with password stored in database.
-	if !comparePasswordHash(user.Password, password) {
-		http.Error(w, "Password is incorrect.", http.StatusUnauthorized)
-		return
-	}
-
-	session, err := s.store.Get(r, "session_id")
-	// User has logged in, redirect to home page.
-	if !session.IsNew() {
-
-		return
-	}
-
-	// User hasn't logged in, config session.
-	session.SetMaxAge(30 * 60)
-	session.SetValue("authenticated", true)
-	session.SetValue("username", username)
-	// Save session.
-	session.Save(w)
-	// Login successfully, redirect to home page.
-	if _, err = fmt.Fprint(w, "login successfully"); err != nil {
-		log.Println(err)
-		return
-	}
-}
-
-func (s *Server) handleAuthLogout(w http.ResponseWriter, _ *http.Request,
+func (s *Server) handleAuthLogout(w http.ResponseWriter, r *http.Request,
 	session *sessions.Session) {
 	session.SetMaxAge(-1)
 	session.SetValue("authenticated", false)
 	session.Save(w)
 	// Redirect to login page.
-	if _, err := fmt.Fprint(w, "logout successfully"); err != nil {
-		log.Println(err)
-		return
-	}
+	http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
 }
 
 // Redirect to login page
-func (s *Server) handleRegister(w http.ResponseWriter, _ *http.Request,
+func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request,
 	username, password string) {
 	// Store encrypted password in database.
 	hashedPassword, err := hashPassword(password)
@@ -94,10 +49,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, _ *http.Request,
 		log.Println(err)
 	}
 	// Redirect to login page.
-	if _, err = fmt.Fprint(w, "registered successfully"); err != nil {
-		log.Println(err)
-		return
-	}
+	http.Redirect(w, r, "http://localhost:8080", http.StatusPermanentRedirect)
 }
 
 // validUserTable checks if user table exists, if not, create one.
