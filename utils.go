@@ -43,7 +43,7 @@ func getUsernameAndPassword(r *http.Request) (username string, password string, 
 		err = fmt.Errorf("failed to parse username and password: %v", e)
 		return
 	}
-	fmt.Println(r.Form)
+
 	// Get username and password form the parsed form.
 	username = r.Form.Get("username")
 	password = r.Form.Get("password")

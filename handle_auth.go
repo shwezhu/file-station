@@ -23,7 +23,6 @@ func (s *Server) registerRouter(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// If user has logged in, redirect to home page.
 func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 	username, password string) {
 	// Query user by username in database.
@@ -60,7 +59,6 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 	_, _ = fmt.Fprint(w, "")
 }
 
-// Redirect to login page
 func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request,
 	username, password string) {
 	// Store encrypted password in database.
@@ -92,8 +90,8 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request,
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Println(err)
 	}
-	// Redirect to login page.
-	http.Redirect(w, r, "/login", http.StatusPermanentRedirect)
+	// Register successfully.
+	_, _ = fmt.Fprint(w, "")
 }
 
 func (s *Server) handleLogout(w http.ResponseWriter, _ *http.Request,
@@ -101,5 +99,6 @@ func (s *Server) handleLogout(w http.ResponseWriter, _ *http.Request,
 	session.SetMaxAge(-1)
 	session.SetIsNew(true)
 	session.Save(w)
-	_, _ = fmt.Fprint(w, "Logout successfully.")
+	// Logout successfully.
+	_, _ = fmt.Fprint(w, "")
 }

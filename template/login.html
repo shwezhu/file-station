@@ -68,8 +68,8 @@
 </section>
 
 <script>
-  document.getElementById("login-btn").addEventListener("click", login)
-  async function login() {
+  document.getElementById("login-btn").addEventListener("click", onClick)
+  async function onClick() {
     const data = new URLSearchParams()
     for (const pair of new FormData(document.getElementById("login-form"))) {
       data.append(pair[0], String(pair[1]))
