@@ -35,8 +35,20 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleFavicon(_ http.ResponseWriter, _ *http.Request) {}
 
-func (s *Server) handleHomePage(w http.ResponseWriter, _ *http.Request,
-	_ *sessions.Session) {
+func (s *Server) handleHomePage(w http.ResponseWriter, r *http.Request) {
+	// Check if user has logged in.
+	session, err := s.store.Get(r, "session_id")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("failed to valid request:%v", err), http.StatusInternalServerError)
+		log.Printf("Failed to valid request: %v", err)
+		return
+	}
+	// Have not logged in, redirect to login page.
+	if session.IsNew() {
+		http.Redirect(w, r, "http://localhost:8080/login", http.StatusFound)
+		return
+	}
+	// User have logged in, proceed request.
 	if _, err := os.Stat(s.fileRoot); errors.Is(err, os.ErrNotExist) {
 		err := os.Mkdir(s.fileRoot, os.ModePerm)
 		if err != nil {

@@ -19,7 +19,7 @@ func (s *Server) authenticatedOnly(f func(http.ResponseWriter, *http.Request, *s
 		}
 		// Have not logged in, redirect to login page.
 		if session.IsNew() {
-			http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 		// Call the handler.
