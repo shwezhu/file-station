@@ -45,9 +45,9 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 	}
 
 	session, err := s.store.Get(r, "session_id")
-	// User has logged in, redirect to home page.
+	// User has logged in.
 	if !session.IsNew() {
-		http.Redirect(w, r, "/", http.StatusFound)
+		_, _ = fmt.Fprint(w, "")
 		return
 	}
 
@@ -56,8 +56,8 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 	session.SetValue("username", username)
 	// Save session.
 	session.Save(w)
-	// Login successfully, redirect to home page.
-	http.Redirect(w, r, "/", http.StatusFound)
+	// Login successfully.
+	_, _ = fmt.Fprint(w, "")
 }
 
 // Redirect to login page
