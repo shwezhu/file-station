@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/shwezhu/sessions"
 	"io"
 	"log"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"time"
 )
 
-func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request, _ *sessions.Session) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -75,7 +76,7 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	_, _ = fmt.Fprintf(w, "upload successful")
 }
 
-func (s *Server) handleDownload(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleDownload(w http.ResponseWriter, r *http.Request, _ *sessions.Session) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, fmt.Sprintf("failed to download file: %v", err), http.StatusBadRequest)
 		return
