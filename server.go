@@ -45,7 +45,7 @@ func (s *Server) handleHomePage(w http.ResponseWriter, r *http.Request) {
 	}
 	// Have not logged in, redirect to login page.
 	if session.IsNew() {
-		http.Redirect(w, r, "http://localhost:8080/login", http.StatusFound)
+		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
 	// User have logged in, proceed request.

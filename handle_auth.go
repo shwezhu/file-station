@@ -47,7 +47,7 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 	session, err := s.store.Get(r, "session_id")
 	// User has logged in, redirect to home page.
 	if !session.IsNew() {
-		http.Redirect(w, r, "http://localhost:8080", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 	// Save session.
 	session.Save(w)
 	// Login successfully, redirect to home page.
-	http.Redirect(w, r, "http://localhost:8080", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 // Redirect to login page
@@ -93,7 +93,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request,
 		log.Println(err)
 	}
 	// Redirect to login page.
-	http.Redirect(w, r, "http://localhost:8080/login", http.StatusPermanentRedirect)
+	http.Redirect(w, r, "/login", http.StatusPermanentRedirect)
 }
 
 func (s *Server) handleLogout(w http.ResponseWriter, _ *http.Request,

@@ -17,7 +17,7 @@ func (s *Server) authenticatedOnly(f func(http.ResponseWriter, *http.Request, *s
 			log.Printf("Failed to valid request: %v", err)
 			return
 		}
-		// Have not logged in, redirect to login page.
+		// Have not logged in.
 		if session.IsNew() {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
