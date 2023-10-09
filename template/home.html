@@ -8,9 +8,8 @@
 
 <input id="upload-file" type="file" />
 <input id="upload-file-btn" type="button" value="upload" />
-<input id="logout-btn" type="button" value="logout" />
+<input id="logout-btn" type="button" value="logout" >
 
-</a>
 {{range .}}
     <div>
         <a href="http://localhost:8080/download?filename={{.Name}}">{{.Name}} ({{.Size}})</a>
@@ -20,21 +19,20 @@
 <script>
     document.getElementById("upload-file-btn").addEventListener("click", uploadFile)
     document.getElementById("logout-btn").addEventListener("click", logout)
+    const login_url = "/login"
     async function logout() {
-        const url = "http://localhost:8080/logout"
-        let response = await fetch(url, {
-            method: "GET",
-        })
+        const url = "/logout"
+        let response = await fetch(url)
         if (!response.ok) {
-            const body = await response.text()
-            alert("Failed to logout: " + body)
+            await handleNotOk(response, "Failed to logout: ")
             return
         }
         alert("Logout successfully.")
-        window.location = "http://localhost:8080/login"
+        window.location = login_url
     }
+
     async function uploadFile() {
-        const url = "http://localhost:8080/upload"
+        const url = "/upload"
         const fileInput = document.getElementById("upload-file")
         const formData = new FormData()
         formData.append("uploaded_file", fileInput.files[0], String(fileInput.value.split("\\").pop()))
@@ -43,13 +41,21 @@
             body: formData,
         })
         if (!response.ok) {
-            const body = await response.text()
-            alert("Failed to upload file: " + body)
+            await handleNotOk(response, "Failed to upload file: ")
             return
         }
-        console.log(fileInput.value.split("\\").pop())
         fileInput.value = null
         alert("Upload successfully!")
+    }
+
+    async function handleNotOk(response, message) {
+        if (response.status === 401) {
+            alert("You have not logged in yet.")
+            window.location = login_url
+            return
+        }
+        const body = await response.text()
+        alert(message + body)
     }
 </script>
 

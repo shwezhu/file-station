@@ -20,7 +20,7 @@
 
                                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
 
-                                <form class="mx-1 mx-md-4" method="post" action="http://localhost:8080/register">
+                                <form class="mx-1 mx-md-4" method="post" action="/register">
 
                                     <div class="d-flex flex-row align-items-center mb-4">
                                         <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
@@ -77,7 +77,7 @@
 
 <script>
     function check() {
-        var input = document.getElementById('form3Example4cd')
+        let input = document.getElementById('form3Example4cd')
         if (input.value !== document.getElementById('form3Example4c').value) {
             input.setCustomValidity('Password must match.')
         } else {

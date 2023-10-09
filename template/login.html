@@ -20,31 +20,31 @@
 
                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Login</p>
 
-                <form class="mx-1 mx-md-4" method="post" action="http://localhost:8080/login">
+                <form class="mx-1 mx-md-4" method="post" action="/login">
 
                   <div class="d-flex flex-row align-items-center mb-4">
                     <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                     <div class="form-outline flex-fill mb-0">
-                      <input type="text" id="form3Example3c" name="username" class="form-control" placeholder="username" required minlength="5" maxlength="16" />
-                      <label class="form-label" for="form3Example3c"></label>
+                      <input type="text" id="username-input" name="username" class="form-control" placeholder="username" required minlength="5" maxlength="16" />
+                      <label class="form-label" for="username-input"></label>
                     </div>
                   </div>
 
                   <div class="d-flex flex-row align-items-center mb-4">
                     <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
                     <div class="form-outline flex-fill mb-0">
-                      <input type="password" id="form3Example4c" name="password" class="form-control" placeholder="password" required minlength="6" maxlength="20" />
-                      <label class="form-label" for="form3Example4c"></label>
+                      <input type="password" id="password-input" name="password" class="form-control" placeholder="password" required minlength="6" maxlength="20" />
+                      <label class="form-label" for="password-input"></label>
                     </div>
                   </div>
 
                   <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                    <button id="login-btn" type="submit" class="btn btn-primary btn-lg">Login</button>
                   </div>
 
                   <!-- Register buttons -->
                   <div class="text-center">
-                    <p>Not a member? <a href="http://localhost:8080/register">Register</a></p>
+                    <p>Not a member? <a href="/register">Register</a></p>
                   </div>
 
                 </form>
@@ -64,9 +64,28 @@
   </div>
 </section>
 
-<script>
-
-</script>
+<!--<script>
+  document.getElementById("login-btn").addEventListener("click", login)
+  async function login(event) {
+    //event.preventDefault()
+    const url = "http://localhost:8080/login"
+    const home_url = "http://localhost:8080"
+    let formData = new FormData()
+    formData.set("username", document.getElementById("username-input").value)
+    formData.set("password", document.getElementById("password-input").value)
+    let response = await fetch(url, {
+      method: "POST",
+      body: formData,
+      headers:{"Content-Type":"application/x-www-form-urlencoded"}
+    })
+    if (!response.ok) {
+      body = await response.text()
+      alert(body)
+      return
+    }
+    window.location = home_url
+  }
+</script>-->
 
 </body>
 </html>
