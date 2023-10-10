@@ -28,5 +28,4 @@ RUN apk add \
 # '.' tells the compiler to build the Go program located in the current directory.
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o /server .
 
-
 CMD ["/server"]
