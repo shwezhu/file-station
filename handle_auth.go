@@ -61,37 +61,39 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request,
 
 func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request,
 	username, password string) {
-	// Store encrypted password in database.
-	hashedPassword, err := hashPassword(password)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	// Check if the user table exists, if not, create one.
-	err = s.validUserTable()
-	if err != nil {
-		log.Fatal("Failed to migrate the user schema.")
-	}
-	// Check if user has existed in the database.
-	user, err := s.findUser(username)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	if *user != (User{}) {
-		http.Error(w, "Username has been taken.", http.StatusConflict)
-		return
-	}
-	user.Username = username
-	user.Password = hashedPassword
-	// Save user into database.
-	if err = s.db.Create(user).Error; err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Println(err)
-	}
-	// Register successfully.
-	_, _ = fmt.Fprint(w, "")
+	http.Error(w, "Register is not allowed temporarily", http.StatusUnauthorized)
+	return
+	/*	// Store encrypted password in database.
+		hashedPassword, err := hashPassword(password)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		// Check if the user table exists, if not, create one.
+		err = s.validUserTable()
+		if err != nil {
+			log.Fatal("Failed to migrate the user schema.")
+		}
+		// Check if user has existed in the database.
+		user, err := s.findUser(username)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
+		if *user != (User{}) {
+			http.Error(w, "Username has been taken.", http.StatusConflict)
+			return
+		}
+		user.Username = username
+		user.Password = hashedPassword
+		// Save user into database.
+		if err = s.db.Create(user).Error; err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println(err)
+		}
+		// Register successfully.
+		_, _ = fmt.Fprint(w, "")*/
 }
 
 func (s *Server) handleLogout(w http.ResponseWriter, _ *http.Request,

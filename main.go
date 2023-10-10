@@ -20,5 +20,5 @@ func main() {
 	srv := newServer(db, store)
 	srv.fileRoot = "./files"
 	srv.templateRoot = "./template"
-	_ = http.ListenAndServe(":8080", srv)
+	_ = http.ListenAndServe(":80", srv)
 }
