@@ -95,3 +95,9 @@ func (s *Server) handleHomePage(w http.ResponseWriter, r *http.Request) {
 		log.Printf("failed to execute template:%v", err)
 	}
 }
+
+func handleBackgroundImage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Disposition", "attachment; filename=draw1.png")
+	w.Header().Set("Content-Type", "application/octet-stream")
+	http.ServeFile(w, r, "./template/draw1.png")
+}

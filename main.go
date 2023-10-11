@@ -20,5 +20,8 @@ func main() {
 	srv := newServer(db, store)
 	srv.fileRoot = "./files"
 	srv.templateRoot = "./template"
-	_ = http.ListenAndServe(":80", srv)
+	err = http.ListenAndServeTLS(":443", "server.crt", "server.key", srv)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
