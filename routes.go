@@ -17,4 +17,5 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/register", s.registerRouter)
 	s.router.HandleFunc("/upload", s.authenticatedOnly(s.handleUpload))
 	s.router.HandleFunc("/download", s.authenticatedOnly(s.handleDownload))
+	s.router.HandleFunc("/draw1.png", handleBackgroundImage)
 }

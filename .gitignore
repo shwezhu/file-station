@@ -11,3 +11,6 @@
 .DS_Store
 
 files/
+
+server.crt
+server.key
