@@ -26,7 +26,7 @@ RUN apk add \
 # GOOS=linux: set target os to linux
 # 'go build -o /server .': 'go build' is a command, '-o /server' output,
 # '.' tells the compiler to build the Go program located in the current directory.
-RUN CGO_ENABLED=1 GOOS=linux go build -o /server .
+RUN go build -o /server .
 
 CMD ["/server"]
 
