@@ -1,7 +1,5 @@
 FROM golang:alpine
 
-LABEL authors="David"
-
 # All the following command will treated as inside this folder of docker
 WORKDIR /app
 # copy all the files of our project into the /app folder of docker
@@ -15,13 +13,8 @@ RUN go mod download
 # https://docs.docker.com/engine/reference/builder/#expose
 EXPOSE 80
 
-RUN apk update
-RUN apk add \
-  g++ \
-  git \
-  musl-dev \
-  go \
-  tesseract-ocr-dev
+# Install gcc to compile cgo
+RUN apk add --no-cache --update go gcc g++
 
 # GOOS=linux: set target os to linux
 # 'go build -o /server .': 'go build' is a command, '-o /server' output,
@@ -30,4 +23,4 @@ RUN go build -o /server .
 
 CMD ["/server"]
 
-# $ docker buildx build --platform linux/amd64 -t shwezhu/file-station:v2 .
+# $ docker build --platform linux/amd64 -t shwezhu/file-station:v2 .
